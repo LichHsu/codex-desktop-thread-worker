@@ -68,6 +68,8 @@ For optional goal mode:
 
 本範例改寫自真實開發任務，專案細節已匿名化。以下訊息用於說明操作流程，並非對話逐字紀錄或已驗證的完成報告。
 
+作者目前使用的模型配置（2026-09-10）：Planner A 使用 Astra，思考強度為 `low`；Worker B 使用 Luna，思考強度為 `xhigh`。這是作者的使用配置，並非 skill 的必要條件。
+
 **1. 給 Planner A 明確範圍的任務**
 
 > 使用 $desktop-thread-worker，沿用我現有的 Worker。

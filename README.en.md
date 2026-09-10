@@ -68,6 +68,8 @@ For optional goal mode:
 
 This example adapts a real development task. Project details are anonymized. The messages below illustrate the workflow; they are not a transcript or a verified completion report.
 
+The author's current setup (2026-09-10): Planner A uses Astra with `low` reasoning effort. Worker B uses Luna with `xhigh` reasoning effort. This is the author's setup, not a skill requirement.
+
 **1. Give Planner A a bounded task**
 
 > Use $desktop-thread-worker with my existing Worker.
