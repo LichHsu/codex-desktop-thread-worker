@@ -36,7 +36,7 @@ When the user explicitly requests creation, such as `$desktop-thread-worker è‡ªå
 3. Call `create_thread` once. Omit model and thinking overrides unless the user requests them. Its initial prompt must identify A, define B's role, and carry the user's actual authorization to receive scoped delegations and return results. Keep this permission effective across the objective's handoffs, not just the initialization turn. Do not invent broader permissions. Tell B to return `WORKER_READY` locally, then wait for A's first handoff; do not send an initialization callback.
 4. Obtain the returned `threadId` and `hostId`. A queued `clientThreadId` is not a usable thread ID. Wait for setup and resolve the ready task through the available thread tools; do not create a duplicate. Use a bounded `wait_threads` call to confirm initialization, and `read_thread` when needed to verify the ready task and workspace. Resolve an initialization error before dispatch.
 5. Record the work ID, A/B thread IDs, host ID, B's workspace, latest handoff ID, and state in the task's existing work record. This is a logical pair, not an App-native parent/child relationship. Reuse it for the same objective and verify it again after a context loss or interruption. Do not use a global hard-coded Worker ID.
-6. Send the first bounded handoff, then end A's turn. Include the required created-thread UI directive in A's response, using the identifier returned by the creation tool.
+6. Send the first bounded handoff, then end A's turn. Follow any UI instructions actually supplied by the creation tool. If none are supplied, identify B with its verified task link; do not invent a directive.
 
 Initialization prompt outline (replace placeholders with verified values):
 
@@ -52,13 +52,13 @@ Receiving `WORKER_READY` proves initialization only. A successful callback from 
 
 ## Review modes
 
-The default mode has a five-response limit. The optional goal mode below is the only exception. A owns a persistent counter for each work objective. Before the first dispatch, record `response_count: 0`, `response_limit: 5`, `counted_response_ids: []`, and `review_state: pending` alongside the A/B pair in the task's local work record. Use a small state file in the permitted workspace if no durable record exists. Do not keep the counter only in conversational recall.
+The default mode starts with a five-response limit. The user may explicitly extend it or enable goal mode below. A owns a persistent counter for each work objective. Before the first dispatch, record `response_count: 0`, `response_limit: 5`, `counted_response_ids: []`, and `review_state: pending` alongside the A/B pair in the task's local work record. Use a small state file in the permitted workspace if no durable record exists. Do not keep the counter only in conversational recall.
 
 - On each distinct B work response, increment and save the counter before reviewing. Count `ready_for_review`, `needs_decision`, and `blocked` responses. Count an incomplete or malformed work response too; it still consumed a round. Use the source message or turn ID to deduplicate. Exclude initialization `WORKER_READY`, duplicate delivery of the same response, and unrelated messages.
-- In default mode, responses 1 through 4 may lead to another scoped handoff if authorized. On response 5, A performs the review once. If the complete objective passes, mark it accepted. If it does not pass, or evidence remains insufficient, set `review_state: awaiting_human` and stop. Do not send a sixth handoff, continue repairs in A, or launch a substitute worker.
-- When the default limit is reached, tell the user briefly: `5/5 responses reviewed; acceptance is incomplete`, the remaining issues, and the decision needed. Do not automatically send an ACK or another task to B. B already ends its turn after its callback.
+- In bounded mode, responses below the saved `response_limit` may lead to another scoped handoff if authorized. When the count reaches the limit, A performs the review once. If the complete objective passes, mark it accepted. If it does not pass, or evidence remains insufficient, set `review_state: awaiting_human` and stop. Do not dispatch beyond that limit, continue repairs in A, or launch a substitute worker.
+- When the limit is reached without acceptance, tell the user briefly: `<response_count>/<response_limit> responses reviewed; acceptance is incomplete`, the remaining issues, and the decision needed. Do not automatically send an ACK or another task to B. B already ends its turn after its callback.
 - Preserve the count across incremental handoffs, context loss, thread changes, and renamed work IDs for the same objective. Before any dispatch, read the saved count and review state. If the record is missing or inconsistent, recover it from the recorded turns; do not assume zero. If it cannot be recovered, stop for human decision.
-- Only an explicit human decision may authorize another bounded batch. Preserve the previous counts and the decision in the record; do not silently reset the counter or treat a status question as permission to continue. Independent objectives start their own counters.
+- Only an explicit human decision may authorize another bounded batch. For N additional responses, keep `response_count` and `counted_response_ids`, set `response_limit = response_count + N`, record the decision, and set `review_state: pending`. For example, count 5 plus 3 authorized responses gives limit 8. If the number is unclear, ask before dispatch. Do not reset the counter or treat a status question as permission to continue. Independent objectives start their own counters.
 
 This is an agent workflow limit, not an App-enforced token cap. Do not claim that it prevents every tool call or message at the platform level.
 
@@ -87,6 +87,8 @@ B handles each handoff once. Copy the established work ID and the current handof
 - unfinished items, limits, and any evidence not obtained.
 
 The return is not acceptance. A may send a new incremental handoff through the same B only while the active review mode and progress check permit it. Do not use ACK loops or repeated callbacks. If a message is duplicated, inspect the prior result before acting. If a tool result is ambiguous, do not resend automatically. If a tool review rejects the callback, preserve the reason, stop, and report it.
+
+For worktree delivery, establish the intended destination at the first handoff. B reports the worktree path, branch, artifact version, and whether integration is pending. A acceptance of worktree changes does not mean the original checkout is updated. If the objective includes integration, B performs it under existing Git authorization and A verifies the destination before closing the objective. If authorization is missing, report the accepted delivery and pending integration, then request only the missing authorization. Preserve unrelated staged and uncommitted changes; do not overwrite them or copy them between worktrees without user authorization.
 
 ## Evidence and loop efficiency
 

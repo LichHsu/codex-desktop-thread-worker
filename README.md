@@ -25,6 +25,8 @@ Both threads must be able to read the skill. The skill does not add missing tool
 
 Download this repository. Copy `SKILL.md` and the `agents` directory into a folder named `desktop-thread-worker` under your Codex skills directory, normally `~/.codex/skills/desktop-thread-worker`.
 
+The included configuration allows implicit invocation for relevant development tasks. This does not authorize creating a Worker; creation still requires an explicit user request.
+
 Start a new task if the skill does not appear in the current task's skill list. No installer is required. Do not overwrite a customized copy without a backup.
 
 ## Use
@@ -45,7 +47,7 @@ This is an experimental instruction-based workflow, not a runtime scheduler. Res
 
 Short handoffs, fewer duplicate reads, and fewer empty round trips are intended to reduce wasted context. No measured token-saving percentage is claimed.
 
-The current skill requires explicit user approval for another bounded batch. The exact cumulative-limit update for additional batches is not yet specified; do not assume that the counter resets.
+Additional batches require explicit user approval. Keep the cumulative count and set the new limit to the current count plus the authorized additional responses. Worktree acceptance and integration into the destination checkout are separate completion checks.
 
 ## 繁體中文摘要
 
