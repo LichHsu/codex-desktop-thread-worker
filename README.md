@@ -29,6 +29,12 @@ You set the scope → Planner A dispatches → persistent Worker B implements an
 - Default to five Worker responses per objective. Ask the user when the limit is reached.
 - Enable goal mode only on explicit request. Remove the response limit, but retain progress checks, scope boundaries, and user-defined stopping conditions.
 
+## Extension points
+
+A/B is the default minimum configuration. The same thread messaging pattern can extend to C, D, or other independent Desktop tasks for research, implementation, or review. The user decides whether to add roles. Each added role needs a clear scope, a reporting target, and file ownership to prevent duplicate work or concurrent edits to the same files.
+
+The current skill defines the A/B workflow. Multi-Worker coordination is an extension possibility, not a complete supported or validated mode. Start with A/B and add roles only when the task justifies their coordination and usage costs.
+
 ## Requirements
 
 Codex Desktop must expose native thread tools such as `send_message_to_thread`, `read_thread`, and `list_threads`. Creating a Worker also requires `create_thread`; repository task creation requires `list_projects`. Initialization and diagnosis can use `wait_threads`.
@@ -72,6 +78,8 @@ Additional batches require explicit user approval. Keep the cumulative count and
 開發目的，是讓單人維護單一軟體時，能在有限 token 預算內使用容易理解的分工流程，減少手動轉述、重複背景及無效往返。同時約束 Planner 過度工程化：退回必須有具體未達標證據，達標即結案，不因假想需求或偏好持續加碼。
 
 A 與 B 都是可直接開啟的 Desktop 對話。使用者能查看 Worker 的執行紀錄、直接介入，也能主動指定更換 Worker。更換前須交接狀態並處理尚在進行的修改；同一目標的計數與授權邊界仍保留。這是本 skill 對使用者自主權的設計，並非宣稱所有 subagent 都不可見或不可控制。
+
+A/B 是預設的最小配置；相同的 thread 訊息方式可延伸到 C、D 等研究、實作或審查任務。新增角色由使用者決定，並須指定範圍、回報對象與檔案責任。目前 skill 定義的是 A/B 流程，多 Worker 協作尚非完整支援或已驗證的模式；只在任務需要且值得付出協調與用量成本時擴充。
 
 ## License
 
