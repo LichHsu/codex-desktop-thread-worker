@@ -1,6 +1,6 @@
 # Desktop Thread Worker
 
-Overview with 繁體中文摘要 | [English](README.en.md)
+[Overview with Traditional Chinese summary](README.md) | English
 
 A lightweight Planner / Worker skill for solo developers using Codex Desktop.
 
@@ -77,16 +77,6 @@ This is an experimental instruction-based workflow, not a runtime scheduler. Res
 Short handoffs, fewer duplicate reads, and fewer empty round trips are intended to reduce wasted context. No measured token-saving percentage is claimed.
 
 Additional batches require explicit user approval. Keep the cumulative count and set the new limit to the current count plus the authorized additional responses. Worktree acceptance and integration into the destination checkout are separate completion checks.
-
-## 繁體中文摘要
-
-給單人維護單一軟體、token 預算有限的開發者使用。你決定目標與範圍，A 規劃及驗收，固定 B 實作與驗證。透過精簡交接減少手動轉述與重複背景，並以 KISS／YAGNI 約束 Planner：退回須有具體未達標證據，達標即結案。
-
-A 與 B 都是可直接開啟的 Desktop 對話。使用者能查看過程、直接介入、指定更換 Worker，也能透過 Codex UI 調整 Worker 的模型與思考強度；可選項目依帳號及模型而定，不需修改 skill 或另外設定 API。這是使用者的控制權，並非 Worker 自行切換，也不表示變更會套用到正在執行的回合。不同工具的 subagent 可見性與控制方式不同，本專案不宣稱它們一律不可見或不可控制。
-
-不需額外套件或 API key，但須有原生 thread 工具，並使用既有帳號用量。預設五次回覆上限；使用者可明確授權追加次數或啟用目標模式。更換 Worker 須交接狀態、處理進行中的修改，並保留同一目標的計數與授權邊界。
-
-A/B 是最小配置，訊息架構可按需延伸 C／D。新增角色須明定範圍、回報對象與檔案責任；目前 skill 定義的是 A/B，多 Worker 協作尚非完整支援或已驗證的模式。
 
 ## License
 
