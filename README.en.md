@@ -64,6 +64,42 @@ For optional goal mode:
 
 > For this objective, continue without the five-response limit. Keep the agreed scope and completion conditions. Stop if progress stalls or a decision is needed.
 
+## Example: fix an incomplete alert list
+
+This example adapts a real development task. Project details are anonymized. The messages below illustrate the workflow; they are not a transcript or a verified completion report.
+
+**1. Give Planner A a bounded task**
+
+> Use $desktop-thread-worker with my existing Worker.
+>
+> Scope: fix an alert list that hides unresolved alerts after they become older than the query window.
+>
+> Done:
+>
+> - Older unresolved alerts remain visible.
+> - Cleared alerts are excluded.
+> - Acknowledged alerts follow the existing domain rules.
+> - If the list has a display limit, report the total and whether results are truncated.
+> - Keep historical queries unchanged.
+>
+> Preserve unrelated changes. Do not commit or push.
+
+**2. A sends one handoff to B**
+
+> Handoff: EXAMPLE-001
+>
+> Fix the unresolved-alert query within the agreed scope. Check the domain rules before changing state filters. Return the changed files, verification results, and remaining limitations.
+
+**3. B implements and returns evidence**
+
+B makes the scoped change, runs relevant checks, and reports what passed, what failed, and what remains unverified.
+
+**4. A reviews the delivery**
+
+A checks the actual changes and evidence against the agreed conditions. If a condition is unmet, A sends a focused repair request that identifies the gap. When all conditions pass, A closes the task.
+
+The user can open B at any time to inspect progress or give instructions directly.
+
 ## Extension points
 
 A/B is the default minimum configuration. The same thread messaging pattern can extend to C, D, or other independent Desktop tasks for research, implementation, or review. The user decides whether to add roles. Each added role needs a clear scope, a reporting target, and file ownership to prevent duplicate work or concurrent edits to the same files.

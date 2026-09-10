@@ -64,6 +64,42 @@ For optional goal mode:
 
 > For this objective, continue without the five-response limit. Keep the agreed scope and completion conditions. Stop if progress stalls or a decision is needed.
 
+## 使用範例：修正警報清單遺漏
+
+本範例改寫自真實開發任務，專案細節已匿名化。以下訊息用於說明操作流程，並非對話逐字紀錄或已驗證的完成報告。
+
+**1. 給 Planner A 明確範圍的任務**
+
+> 使用 $desktop-thread-worker，沿用我現有的 Worker。
+>
+> 範圍：修正警報清單在警報發生時間超過查詢區間後，隱藏尚未解除警報的問題。
+>
+> 完成條件：
+>
+> - 較早發生但尚未解除的警報仍可見。
+> - 已解除的警報不列入。
+> - 已確認的警報依既有領域規則處理。
+> - 若清單有顯示上限，回報總數及是否截斷。
+> - 保持歷史查詢原有語意。
+>
+> 保留無關變更。不要 commit 或 push。
+
+**2. A 向 B 發出一次交接**
+
+> 交接代號：EXAMPLE-001
+>
+> 在約定範圍內修正未解除警報查詢。變更狀態篩選前，先確認領域規則。回報變更檔案、驗證結果及剩餘限制。
+
+**3. B 實作並回傳證據**
+
+B 完成範圍內的修改、執行相關檢查，並回報通過、失敗及尚未驗證的項目。
+
+**4. A 驗收交付**
+
+A 依約定條件查核實際變更與證據。若有未達標條件，A 發出指出具體缺口的修正要求；所有條件通過後即結案。
+
+使用者隨時可以開啟 B，查看進度或直接下達指示。
+
 ## Extension points
 
 A/B is the default minimum configuration. The same thread messaging pattern can extend to C, D, or other independent Desktop tasks for research, implementation, or review. The user decides whether to add roles. Each added role needs a clear scope, a reporting target, and file ownership to prevent duplicate work or concurrent edits to the same files.
