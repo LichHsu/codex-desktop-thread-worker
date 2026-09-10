@@ -4,6 +4,20 @@ A lightweight Planner / Worker skill for solo developers using Codex Desktop.
 
 No extra packages, CLI runner, background service, or separate API key. The skill uses native Codex thread tools and your existing Codex access. Normal account usage still applies.
 
+## Why this exists
+
+This skill was developed for one person maintaining one software project with a limited token budget. Repeated background explanations, manual message forwarding, and unnecessary review rounds can make agent collaboration costly. A large orchestration system can add more work than it removes.
+
+The goal is a small, understandable workflow: keep a persistent Worker, send only task changes, and return enough evidence for review. The Planner must also follow KISS and YAGNI. It must identify a concrete unmet condition before requesting a repair and close the objective when the agreed conditions pass. Optional improvements must not become new acceptance requirements.
+
+## Visible work and user control
+
+Planner and Worker are separate Desktop conversations that the user can open directly. The user can inspect the Worker's visible execution record, give instructions directly, and choose a different Worker. The user retains control of the objective, scope, and phase decisions instead of relying only on the Planner's summary.
+
+This is a deliberate workflow choice, not a claim that every subagent interface hides its work or prevents intervention. Subagent visibility and controls vary by tool. This skill uses user-accessible Desktop threads and does not substitute temporary subagents for the Worker.
+
+To replace a Worker, tell A which thread to use. Transfer the current work state, verify the new Worker's authorization and workspace, and preserve the same objective's response count. Resolve any active edits before the replacement starts. Replacing a Worker does not reset the budget or expand permission.
+
 ## How it works
 
 You set the scope → Planner A dispatches → persistent Worker B implements and verifies → A reviews the evidence.
@@ -54,6 +68,10 @@ Additional batches require explicit user approval. Keep the cumulative count and
 給單人開發者的輕量 Codex Desktop A/B 協作 skill。你決定目標與範圍，A 規劃及驗收，固定 B 實作與驗證。
 
 不需額外套件或 API key，但需要 Desktop 提供原生 thread 工具，並使用既有帳號用量。採用精簡交接、單次回傳、KISS／YAGNI 與明確停止條件。預設五次回覆上限；只有使用者明確啟用，才使用無固定次數上限的目標模式。
+
+開發目的，是讓單人維護單一軟體時，能在有限 token 預算內使用容易理解的分工流程，減少手動轉述、重複背景及無效往返。同時約束 Planner 過度工程化：退回必須有具體未達標證據，達標即結案，不因假想需求或偏好持續加碼。
+
+A 與 B 都是可直接開啟的 Desktop 對話。使用者能查看 Worker 的執行紀錄、直接介入，也能主動指定更換 Worker。更換前須交接狀態並處理尚在進行的修改；同一目標的計數與授權邊界仍保留。這是本 skill 對使用者自主權的設計，並非宣稱所有 subagent 都不可見或不可控制。
 
 ## License
 
