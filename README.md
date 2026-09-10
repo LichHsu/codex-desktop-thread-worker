@@ -10,14 +10,6 @@ This skill was developed for one person maintaining one software project with a 
 
 The goal is a small, understandable workflow: keep a persistent Worker, send only task changes, and return enough evidence for review. The Planner must also follow KISS and YAGNI. It must identify a concrete unmet condition before requesting a repair and close the objective when the agreed conditions pass. Optional improvements must not become new acceptance requirements.
 
-## Visible work and user control
-
-Planner and Worker are separate Desktop conversations that the user can open directly. The user can inspect the Worker's visible execution record, give instructions directly, and choose a different Worker. The user retains control of the objective, scope, and phase decisions instead of relying only on the Planner's summary.
-
-This is a deliberate workflow choice, not a claim that every subagent interface hides its work or prevents intervention. Subagent visibility and controls vary by tool. This skill uses user-accessible Desktop threads and does not substitute temporary subagents for the Worker.
-
-To replace a Worker, tell A which thread to use. Transfer the current work state, verify the new Worker's authorization and workspace, and preserve the same objective's response count. Resolve any active edits before the replacement starts. Replacing a Worker does not reset the budget or expand permission.
-
 ## How it works
 
 You set the scope → Planner A dispatches → persistent Worker B implements and verifies → A reviews the evidence.
@@ -29,11 +21,20 @@ You set the scope → Planner A dispatches → persistent Worker B implements an
 - Default to five Worker responses per objective. Ask the user when the limit is reached.
 - Enable goal mode only on explicit request. Remove the response limit, but retain progress checks, scope boundaries, and user-defined stopping conditions.
 
-## Extension points
+## Visible work and user control
 
-A/B is the default minimum configuration. The same thread messaging pattern can extend to C, D, or other independent Desktop tasks for research, implementation, or review. The user decides whether to add roles. Each added role needs a clear scope, a reporting target, and file ownership to prevent duplicate work or concurrent edits to the same files.
+Planner and Worker are separate Desktop conversations. The user retains control of the objective, scope, and phase decisions, and can:
 
-The current skill defines the A/B workflow. Multi-Worker coordination is an extension possibility, not a complete supported or validated mode. Start with A/B and add roles only when the task justifies their coordination and usage costs.
+- Open the Worker conversation and inspect its visible execution record.
+- Give the Worker instructions directly.
+- Choose a different Worker and transfer the work state.
+- Use the Codex UI to change the Worker's model and reasoning effort, choosing from the options available to the account and selected model.
+
+Model and reasoning settings are user-controlled. The skill preserves each thread's settings unless the user requests a change. No skill edit or separate API setup is needed to use the available UI controls. This does not imply that a setting change alters a turn already in progress.
+
+This is a deliberate workflow choice, not a claim that every subagent interface hides its work or prevents intervention. Subagent visibility and controls vary by tool. This skill uses user-accessible Desktop threads and does not substitute temporary subagents for the Worker.
+
+To replace a Worker, tell A which thread to use. Transfer the current work state, verify the new Worker's authorization and workspace, and preserve the same objective's response count. Resolve any active edits before the replacement starts. Replacing a Worker does not reset the response count or expand permission.
 
 ## Requirements
 
@@ -61,6 +62,12 @@ For optional goal mode:
 
 > For this objective, continue without the five-response limit. Keep the agreed scope and completion conditions. Stop if progress stalls or a decision is needed.
 
+## Extension points
+
+A/B is the default minimum configuration. The same thread messaging pattern can extend to C, D, or other independent Desktop tasks for research, implementation, or review. The user decides whether to add roles. Each added role needs a clear scope, a reporting target, and file ownership to prevent duplicate work or concurrent edits to the same files.
+
+The current skill defines the A/B workflow. Multi-Worker coordination is an extension possibility, not a complete supported or validated mode. Start with A/B and add roles only when the task justifies their coordination and usage costs.
+
 ## Limits and status
 
 This is an experimental instruction-based workflow, not a runtime scheduler. Response limits are not platform-enforced spending caps. Delivery, wake-up, and recovery depend on the available Desktop tools. Recent rule changes have passed skill-format validation, but have not all been exercised in end-to-end tasks.
@@ -71,15 +78,13 @@ Additional batches require explicit user approval. Keep the cumulative count and
 
 ## 繁體中文摘要
 
-給單人開發者的輕量 Codex Desktop A/B 協作 skill。你決定目標與範圍，A 規劃及驗收，固定 B 實作與驗證。
+給單人維護單一軟體、token 預算有限的開發者使用。你決定目標與範圍，A 規劃及驗收，固定 B 實作與驗證。透過精簡交接減少手動轉述與重複背景，並以 KISS／YAGNI 約束 Planner：退回須有具體未達標證據，達標即結案。
 
-不需額外套件或 API key，但需要 Desktop 提供原生 thread 工具，並使用既有帳號用量。採用精簡交接、單次回傳、KISS／YAGNI 與明確停止條件。預設五次回覆上限；只有使用者明確啟用，才使用無固定次數上限的目標模式。
+A 與 B 都是可直接開啟的 Desktop 對話。使用者能查看過程、直接介入、指定更換 Worker，也能透過 Codex UI 調整 Worker 的模型與思考強度；可選項目依帳號及模型而定，不需修改 skill 或另外設定 API。這是使用者的控制權，並非 Worker 自行切換，也不表示變更會套用到正在執行的回合。不同工具的 subagent 可見性與控制方式不同，本專案不宣稱它們一律不可見或不可控制。
 
-開發目的，是讓單人維護單一軟體時，能在有限 token 預算內使用容易理解的分工流程，減少手動轉述、重複背景及無效往返。同時約束 Planner 過度工程化：退回必須有具體未達標證據，達標即結案，不因假想需求或偏好持續加碼。
+不需額外套件或 API key，但須有原生 thread 工具，並使用既有帳號用量。預設五次回覆上限；使用者可明確授權追加次數或啟用目標模式。更換 Worker 須交接狀態、處理進行中的修改，並保留同一目標的計數與授權邊界。
 
-A 與 B 都是可直接開啟的 Desktop 對話。使用者能查看 Worker 的執行紀錄、直接介入，也能主動指定更換 Worker。更換前須交接狀態並處理尚在進行的修改；同一目標的計數與授權邊界仍保留。這是本 skill 對使用者自主權的設計，並非宣稱所有 subagent 都不可見或不可控制。
-
-A/B 是預設的最小配置；相同的 thread 訊息方式可延伸到 C、D 等研究、實作或審查任務。新增角色由使用者決定，並須指定範圍、回報對象與檔案責任。目前 skill 定義的是 A/B 流程，多 Worker 協作尚非完整支援或已驗證的模式；只在任務需要且值得付出協調與用量成本時擴充。
+A/B 是最小配置，訊息架構可按需延伸 C／D。新增角色須明定範圍、回報對象與檔案責任；目前 skill 定義的是 A/B，多 Worker 協作尚非完整支援或已驗證的模式。
 
 ## License
 
