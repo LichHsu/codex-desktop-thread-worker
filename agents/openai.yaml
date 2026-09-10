@@ -1,0 +1,6 @@
+interface:
+  display_name: "Desktop Thread Worker"
+  short_description: "Bounded A-plans, B-executes, A-reviews workflow"
+  default_prompt: "Use $desktop-thread-worker for an authorized Desktop A -> Desktop B -> A handoff."
+policy:
+  allow_implicit_invocation: true
