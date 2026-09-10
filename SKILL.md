@@ -78,6 +78,8 @@ Keep A's incremental message to the handoff ID, requested change, and completion
 > Fix the narrow-width toolbar overlap in the assigned view.
 > Done: verify the supported minimum width and return the changed files and result.
 
+If the requested behavior can be misread, add one concrete input and expected result. For integration work, identify the product entry point and the required connection to its dependencies in the completion condition.
+
 State a new permission or scope boundary explicitly when it matters; brevity does not expand authorization. If context is missing, supply only the missing facts. A's user-facing dispatch update should also be one short sentence.
 
 B handles each handoff once. Copy the established work ID and the current handoff ID exactly into the callback; do not invent replacements. Return exactly one status to A: `ready_for_review`, `needs_decision`, or `blocked`, with:
@@ -92,9 +94,13 @@ For worktree delivery, establish the intended destination at the first handoff. 
 
 ## Evidence and loop efficiency
 
+For integration delivery, B traces the product call path and confirms that its required dependencies are connected. Test-only substitutes or dependency injection do not prove that the product entry point is connected. Run the relevant build and checks after the final code change; if code changes again, rerun affected checks before reporting success.
+
 Save the delivery and validation evidence in the permitted workspace before the callback. Include a decision-ready summary and evidence paths in that single return. For a failure, include the actual error and reproduction conditions. Do not send a completion-only message that requires A to ask for the result.
 
 Keep source code, diffs, and diagnostic evidence available in their original form. Summarize repetitive logs only when useful, and retain a direct path to the complete output. A reads the summary first, then checks the necessary original changes and evidence. A must not accept a summary as proof, but should not repeat B's full exploration without a concrete reason.
+
+If A and B obtain different validation results, first compare artifact versions, commands, and execution permissions. Classify a product defect only when the evidence supports it; do not use an environment mismatch alone to justify a code repair.
 
 Whenever A requests missing evidence or a rerun, record the handoff ID, a short reason, and the applicable categories in the existing work record: `delivery_gap`, `verification_needed`, or `requirement_change`. Missing evidence belongs to `delivery_gap`; a necessary independent check or a changed artifact belongs to `verification_needed`; a changed acceptance condition belongs to `requirement_change`. A new requirement needs the user's scope decision. It does not reset the response count for the same objective.
 
