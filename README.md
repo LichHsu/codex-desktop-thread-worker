@@ -32,7 +32,7 @@ Planner and Worker are separate Desktop conversations. The user retains control 
 - Choose a different Worker and transfer the work state.
 - Use the Codex UI to change the Worker's model and reasoning effort, choosing from the options available to the account and selected model.
 
-Model and reasoning settings are user-controlled. The skill preserves each thread's settings unless the user requests a change. No skill edit or separate API setup is needed to use the available UI controls. This does not imply that a setting change alters a turn already in progress.
+Model and reasoning settings are user-controlled. The skill never changes these settings and always omits model and reasoning overrides from thread creation and messages. No skill edit or separate API setup is needed to use the available UI controls. This does not imply that a setting change alters a turn already in progress.
 
 This is a deliberate workflow choice, not a claim that every subagent interface hides its work or prevents intervention. Subagent visibility and controls vary by tool. This skill uses user-accessible Desktop threads and does not substitute temporary subagents for the Worker.
 
