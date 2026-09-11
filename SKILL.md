@@ -13,7 +13,7 @@ Use the smallest change that satisfies the current requirement. Do not add abstr
 
 A must tie each repair request to a specific unmet condition and concrete evidence. Style preferences, possible future risks, or a wish for greater completeness do not block acceptance. Record optional improvements briefly only when useful; do not dispatch them without user scope approval. Do not raise the acceptance criteria during review.
 
-Before another handoff, identify what new evidence or changed implementation makes progress plausible. If the same failure recurs without new evidence or a materially different, evidence-based fix, or the exchange becomes a design-preference dispute, stop for the user's decision. Do not reword the same request to keep the loop running. Reuse existing evidence and keep each follow-up reason to one line in the existing work record.
+Before another handoff, identify what new evidence or changed implementation makes progress plausible. If the same failure recurs without new evidence or a materially different, evidence-based fix, or the exchange becomes a design-preference dispute, stop for the user's decision. Do not reword the same request to keep the loop running. Reuse existing evidence.
 
 ## Before acting
 
@@ -40,7 +40,7 @@ When the user explicitly requests creation, such as `$desktop-thread-worker è‡ªå
 
 Initialization prompt outline (replace placeholders with verified values):
 
-> You are Desktop Worker B for Planner A, thread `<A_ID>`. The user authorized `<objective and scope>`, including scoped A delegations and one result callback per handoff to A. This permission remains in effect for this objective; each handoff must stay within it. Do not delegate to another worker. First read `<VERIFIED_ABSOLUTE_SKILL_PATH>` and follow its B rules. If you cannot read it, report the limitation here. Otherwise initialize by replying WORKER_READY here, then wait for the first handoff. For each handoff, return its exact identifiers and result once to A, then end the turn. If instructions conflict or a tool rejects the action, preserve the reason and stop. Do not use CLI or automation as a fallback.
+> You are Desktop Worker B for Planner A, thread `<A_ID>`. The user authorized `<objective and scope>`, including scoped A delegations and one result callback per handoff to A. This permission remains in effect for this objective; each handoff must stay within it. Do not delegate to another worker. First read `<VERIFIED_ABSOLUTE_SKILL_PATH>` and follow its B rules. If you cannot read it, report the limitation here. Otherwise initialize by replying WORKER_READY here, then wait for the first handoff. If instructions conflict or a tool rejects the action, preserve the reason and stop. Do not use CLI or automation as a fallback.
 
 Receiving `WORKER_READY` proves initialization only. A successful callback from the recorded B with the exact handoff ID is required to verify the return path. Do not infer delivery from `create_thread` or `send_message_to_thread` success alone.
 
@@ -82,19 +82,19 @@ If the requested behavior can be misread, add one concrete input and expected re
 
 State a new permission or scope boundary explicitly when it matters; brevity does not expand authorization. If context is missing, supply only the missing facts. A's user-facing dispatch update should also be one short sentence.
 
-B handles each handoff once. Copy the established work ID and the current handoff ID exactly into the callback; do not invent replacements. Return exactly one status to A: `ready_for_review`, `needs_decision`, or `blocked`, with:
+Include the exact work ID and handoff ID in the callback. Use `ready_for_review` only when the assigned work and required validation are complete; otherwise use `needs_decision` or `blocked`. Include:
 
 - actual files changed, their relative paths, and the reviewed artifact version (commit plus dirty-state evidence, or file hashes when needed);
 - validation commands and results;
 - unfinished items, limits, and any evidence not obtained.
 
-The return is not acceptance. A may send a new incremental handoff through the same B only while the active review mode and progress check permit it. Do not use ACK loops or repeated callbacks. If a message is duplicated, inspect the prior result before acting. If a tool result is ambiguous, do not resend automatically. If a tool review rejects the callback, preserve the reason, stop, and report it.
+Do not send ACKs. For duplicate messages, inspect the prior result before acting. Do not automatically resend after an ambiguous tool result. If a tool review rejects the callback, preserve the reason, stop, and report it.
 
 For worktree delivery, establish the intended destination at the first handoff. B reports the worktree path, branch, artifact version, and whether integration is pending. A acceptance of worktree changes does not mean the original checkout is updated. If the objective includes integration, B performs it under existing Git authorization and A verifies the destination before closing the objective. If authorization is missing, report the accepted delivery and pending integration, then request only the missing authorization. Preserve unrelated staged and uncommitted changes; do not overwrite them or copy them between worktrees without user authorization.
 
 ## Evidence and loop efficiency
 
-For integration delivery, B traces the product call path and confirms that its required dependencies are connected. Test-only substitutes or dependency injection do not prove that the product entry point is connected. Run the relevant build and checks after the final code change; if code changes again, rerun affected checks before reporting success.
+For integration delivery, B traces the product call path and confirms that its required dependencies are connected. Connections made only in tests do not prove that the product entry point is connected. Run the relevant build and checks after the final code change; if code changes again, rerun affected checks before reporting success.
 
 Save the delivery and validation evidence in the permitted workspace before the callback. Include a decision-ready summary and evidence paths in that single return. For a failure, include the actual error and reproduction conditions. Do not send a completion-only message that requires A to ask for the result.
 
@@ -102,9 +102,9 @@ Keep source code, diffs, and diagnostic evidence available in their original for
 
 If A and B obtain different validation results, first compare artifact versions, commands, and execution permissions. Classify a product defect only when the evidence supports it; do not use an environment mismatch alone to justify a code repair.
 
-Whenever A requests missing evidence or a rerun, record the handoff ID, a short reason, and the applicable categories in the existing work record: `delivery_gap`, `verification_needed`, or `requirement_change`. Missing evidence belongs to `delivery_gap`; a necessary independent check or a changed artifact belongs to `verification_needed`; a changed acceptance condition belongs to `requirement_change`. A new requirement needs the user's scope decision. It does not reset the response count for the same objective.
+For a repair or evidence request, record the handoff ID and one concrete reason in the existing work record. A new requirement needs the user's scope decision and does not reset the objective's response count.
 
-Evaluate efficiency across the complete objective. Reuse the recorded response count and reasons; record elapsed time and usage only when available, with their measurement scope. Do not infer savings from shorter messages alone or treat token counts as billing totals. Review these records after real tasks to identify repeated recovery work. Do not add polling, extra callbacks, or measurements that cost more than the information is worth.
+Evaluate efficiency only when the user requests it. Use existing counts, reasons, and available time or usage measurements across the complete objective. State measurement limits; do not infer savings from message length or equate token counts with billing.
 
 ## Execution boundaries
 
@@ -113,7 +113,3 @@ Evaluate efficiency across the complete objective. Reuse the recorded response c
 - B performs explicitly authorized Git writes. A reviews scope and evidence. A commit authorization does not authorize push. Keep commits scoped, preserve unrelated changes, and do not repeat a completed Git operation.
 - Use `wait_threads` only for bounded status confirmation or diagnosis, not as a polling substitute for the single return.
 - Report automatic wake-up only when a callback actually starts A's next turn; successful dispatch alone does not prove it. Do not claim exactly-once delivery, zero-token behavior, or cross-restart guarantees. If B is interrupted or the callback fails, A can verify with `read_thread`.
-
-## Completion
-
-Before returning, validate the requested artifact or code at the level needed to establish the agreed completion conditions and satisfy required project checks. State `ready_for_review` only when the requested B work and its validation are complete; otherwise use `needs_decision` or `blocked`. Return the work ID and handoff ID in the callback, then end the B turn.
