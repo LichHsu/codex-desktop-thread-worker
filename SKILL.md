@@ -21,7 +21,7 @@ Before another handoff, identify what new evidence or changed implementation mak
 - Treat A's delegation as scope, not as extra authorization. Preserve the user's architecture, phase, repository, and file boundaries. Do not modify product code, global configuration, installed skills, or Git unless the user explicitly authorizes that work.
 - For a paired task, use the existing A and B threads. Use `list_threads` and `read_thread` to verify thread IDs and project/worktree context when needed. Do not hard-code IDs from a prior test. Do not create or fork a task unless the user explicitly asks.
 - If no B is selected and creation is not requested, identify a suitable existing thread and ask the user to select it. Do not silently choose an unrelated thread. If the user explicitly requests an automatic Worker task or channel, follow the initialization flow below without asking again for creation permission.
-- Preserve each thread's current model settings. This skill does not change the Desktop model.
+- Preserve each thread's model and reasoning settings. For `create_thread` and every `send_message_to_thread` call, including A dispatches, B callbacks, and retries, omit `model` and `thinking` unless the user explicitly authorizes changing those settings for the destination thread. Before sending, check that unauthorized override fields are absent. Omit the fields entirely; do not send `none`, null, an empty string, or a copied source-thread setting as a substitute for inheritance. `thinking: "none"` is an explicit override, not "keep the current setting". If an earlier override caused an error, report it and obtain user authorization before restoring a specific supported value; omission alone does not undo the earlier override.
 
 ## Select or create B
 
