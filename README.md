@@ -20,7 +20,7 @@ You set the scope → Planner A dispatches → persistent Worker B implements an
 - Send only the task changes after the first handoff.
 - Return the result once. Do not poll by default.
 - Stop when the agreed conditions pass. Avoid speculative architecture and moving acceptance criteria.
-- Default to five Worker responses per objective. Ask the user when the limit is reached.
+- Default to five Worker responses per objective, counted by the handoff sequence number (`<work-id>-NN`). Ask the user when the limit is reached.
 - Enable goal mode only on explicit request. Remove the response limit, but retain progress checks, scope boundaries, and user-defined stopping conditions.
 
 ## Visible work and user control
@@ -28,7 +28,8 @@ You set the scope → Planner A dispatches → persistent Worker B implements an
 Planner and Worker are separate Desktop conversations. The user retains control of the objective, scope, and phase decisions, and can:
 
 - Open the Worker conversation and inspect its visible execution record.
-- Give the Worker instructions directly.
+- Give the Worker instructions directly. B follows them and reports them in its next callback; these exchanges do not count toward the response limit.
+- Audit the authorization: B's initial prompt quotes your authorization verbatim from A's thread.
 - Choose a different Worker and transfer the work state.
 - Use the Codex UI to change the Worker's model and reasoning effort, choosing from the options available to the account and selected model.
 
@@ -48,7 +49,7 @@ Both threads must be able to read the skill. The skill does not add missing tool
 
 Download this repository. Copy `SKILL.md` and the `agents` directory into a folder named `desktop-thread-worker` under your Codex skills directory, normally `~/.codex/skills/desktop-thread-worker`.
 
-The included configuration allows implicit invocation for relevant development tasks. This does not authorize creating a Worker; creation still requires an explicit user request.
+The included configuration allows implicit invocation, but the skill only activates when you name it, ask A to delegate, or an active A/B pair already exists for the objective. Other tasks run in the current thread without interruption. Creating a Worker still requires an explicit user request.
 
 Start a new task if the skill does not appear in the current task's skill list. No installer is required. Do not overwrite a customized copy without a backup.
 
@@ -88,7 +89,7 @@ For optional goal mode:
 
 **2. A 向 B 發出一次交接**
 
-> 交接代號：EXAMPLE-001
+> 交接代號：EXAMPLE-01
 >
 > 在約定範圍內修正未解除警報查詢。變更狀態篩選前，先確認領域規則。回報變更檔案、驗證結果及剩餘限制。
 
@@ -110,11 +111,22 @@ The current skill defines the A/B workflow. Multi-Worker coordination is an exte
 
 ## Limits and status
 
-This is an experimental instruction-based workflow, not a runtime scheduler. Response limits are not platform-enforced spending caps. Delivery, wake-up, and recovery depend on the available Desktop tools. Recent rule changes have passed skill-format validation, but have not all been exercised in end-to-end tasks.
+This is an experimental instruction-based workflow, not a runtime scheduler. Response limits are not platform-enforced spending caps. Delivery, wake-up, and recovery depend on the available Desktop tools. If B has finished but A never woke, tell A to read B's result. Recent rule changes have passed skill-format validation, but have not all been exercised in end-to-end tasks.
 
 Short handoffs, fewer duplicate reads, and fewer empty round trips are intended to reduce wasted context. No measured token-saving percentage is claimed.
 
 Additional batches require explicit user approval. Keep the cumulative count and set the new limit to the current count plus the authorized additional responses. Worktree acceptance and integration into the destination checkout are separate completion checks.
+
+## End-to-end check
+
+After changing the skill, run one message-only objective through:
+
+1. Create B; confirm `WORKER_READY` and that B quotes the authorization verbatim.
+2. Dispatch `<work-id>-01`; confirm B's callback wakes A with the same ID.
+3. Reject once with one concrete unmet condition; confirm `-02` is dispatched.
+4. Deliver a duplicate callback; confirm A does not act again.
+5. Reach the limit; confirm A stops and reports `NN/limit`.
+6. Authorize N more; confirm the limit becomes `NN + N` and NN is not reset.
 
 ## 繁體中文摘要
 
@@ -122,7 +134,7 @@ Additional batches require explicit user approval. Keep the cumulative count and
 
 A 與 B 都是可直接開啟的 Desktop 對話。使用者能查看過程、直接介入、指定更換 Worker，也能透過 Codex UI 調整 Worker 的模型與思考強度；可選項目依帳號及模型而定，不需修改 skill 或另外設定 API。這是使用者的控制權，並非 Worker 自行切換，也不表示變更會套用到正在執行的回合。不同工具的 subagent 可見性與控制方式不同，本專案不宣稱它們一律不可見或不可控制。
 
-不需額外套件或 API key，但須有原生 thread 工具，並使用既有帳號用量。預設五次回覆上限；使用者可明確授權追加次數或啟用目標模式。更換 Worker 須交接狀態、處理進行中的修改，並保留同一目標的計數與授權邊界。
+不需額外套件或 API key，但須有原生 thread 工具，並使用既有帳號用量。預設五次回覆上限，以交接序號計數；使用者可明確授權追加次數或啟用目標模式。更換 Worker 須交接狀態、處理進行中的修改，並保留同一目標的計數與授權邊界。
 
 A/B 是最小配置，訊息架構可按需延伸 C／D。新增角色須明定範圍、回報對象與檔案責任；目前 skill 定義的是 A/B，多 Worker 協作尚非完整支援或已驗證的模式。
 

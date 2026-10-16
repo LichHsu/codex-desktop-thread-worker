@@ -20,7 +20,7 @@ You set the scope → Planner A dispatches → persistent Worker B implements an
 - Send only the task changes after the first handoff.
 - Return the result once. Do not poll by default.
 - Stop when the agreed conditions pass. Avoid speculative architecture and moving acceptance criteria.
-- Default to five Worker responses per objective. Ask the user when the limit is reached.
+- Default to five Worker responses per objective, counted by the handoff sequence number (`<work-id>-NN`). Ask the user when the limit is reached.
 - Enable goal mode only on explicit request. Remove the response limit, but retain progress checks, scope boundaries, and user-defined stopping conditions.
 
 ## Visible work and user control
@@ -28,7 +28,8 @@ You set the scope → Planner A dispatches → persistent Worker B implements an
 Planner and Worker are separate Desktop conversations. The user retains control of the objective, scope, and phase decisions, and can:
 
 - Open the Worker conversation and inspect its visible execution record.
-- Give the Worker instructions directly.
+- Give the Worker instructions directly. B follows them and reports them in its next callback; these exchanges do not count toward the response limit.
+- Audit the authorization: B's initial prompt quotes your authorization verbatim from A's thread.
 - Choose a different Worker and transfer the work state.
 - Use the Codex UI to change the Worker's model and reasoning effort, choosing from the options available to the account and selected model.
 
@@ -48,7 +49,7 @@ Both threads must be able to read the skill. The skill does not add missing tool
 
 Download this repository. Copy `SKILL.md` and the `agents` directory into a folder named `desktop-thread-worker` under your Codex skills directory, normally `~/.codex/skills/desktop-thread-worker`.
 
-The included configuration allows implicit invocation for relevant development tasks. This does not authorize creating a Worker; creation still requires an explicit user request.
+The included configuration allows implicit invocation, but the skill only activates when you name it, ask A to delegate, or an active A/B pair already exists for the objective. Other tasks run in the current thread without interruption. Creating a Worker still requires an explicit user request.
 
 Start a new task if the skill does not appear in the current task's skill list. No installer is required. Do not overwrite a customized copy without a backup.
 
@@ -88,7 +89,7 @@ The author's current setup (2026-09-10): Planner A uses Astra with `low` reasoni
 
 **2. A sends one handoff to B**
 
-> Handoff: EXAMPLE-001
+> Handoff: EXAMPLE-01
 >
 > Fix the unresolved-alert query within the agreed scope. Check the domain rules before changing state filters. Return the changed files, verification results, and remaining limitations.
 
@@ -110,11 +111,22 @@ The current skill defines the A/B workflow. Multi-Worker coordination is an exte
 
 ## Limits and status
 
-This is an experimental instruction-based workflow, not a runtime scheduler. Response limits are not platform-enforced spending caps. Delivery, wake-up, and recovery depend on the available Desktop tools. Recent rule changes have passed skill-format validation, but have not all been exercised in end-to-end tasks.
+This is an experimental instruction-based workflow, not a runtime scheduler. Response limits are not platform-enforced spending caps. Delivery, wake-up, and recovery depend on the available Desktop tools. If B has finished but A never woke, tell A to read B's result. Recent rule changes have passed skill-format validation, but have not all been exercised in end-to-end tasks.
 
 Short handoffs, fewer duplicate reads, and fewer empty round trips are intended to reduce wasted context. No measured token-saving percentage is claimed.
 
 Additional batches require explicit user approval. Keep the cumulative count and set the new limit to the current count plus the authorized additional responses. Worktree acceptance and integration into the destination checkout are separate completion checks.
+
+## End-to-end check
+
+After changing the skill, run one message-only objective through:
+
+1. Create B; confirm `WORKER_READY` and that B quotes the authorization verbatim.
+2. Dispatch `<work-id>-01`; confirm B's callback wakes A with the same ID.
+3. Reject once with one concrete unmet condition; confirm `-02` is dispatched.
+4. Deliver a duplicate callback; confirm A does not act again.
+5. Reach the limit; confirm A stops and reports `NN/limit`.
+6. Authorize N more; confirm the limit becomes `NN + N` and NN is not reset.
 
 ## License
 
